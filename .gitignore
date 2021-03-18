@@ -1,0 +1,15 @@
+# venv directories
+Include/
+Lib/
+Scripts/
+
+# config files
+*.cfg
+*.ini
+
+# temp files
+temp.*
+*.pyc
+
+#debug config file
+.vscode
