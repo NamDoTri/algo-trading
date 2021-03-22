@@ -4,10 +4,10 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')
 
 from MySQLdb.cursors import Cursor
 from sequential_test import SequentialTest
+from business_logic.insert import insert_exchange, insert_security, insert_daily_price, insert_data_vendor, insert_currency, insert_city, insert_country
+from business_logic.delete import delete_exchange
 from database.data_manager.data_access import connect_as_user
-from database.data_manager.data_access import insert_exchange, insert_security, insert_daily_price, insert_data_vendor, insert_currency, insert_city, insert_country
 from database.data_manager.init_queries import country_table_name, city_table_name, currency_table_name, data_vendor_table_name, exchange_table_name, securities_table_name, daily_price_table_name
-from database.data_manager.data_access import delete_exchange
 from tests.db_tests import DbInitializationTest
 from helpers.printing import mute_log, unmute_log
 
