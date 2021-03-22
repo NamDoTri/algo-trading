@@ -1,7 +1,7 @@
 from MySQLdb.cursors import Cursor
 from database.data_manager.init_queries import insert_exchange_query, insert_security_query, insert_daily_price_query, insert_data_vendor_query, insert_currency_query, insert_city_query, insert_country_query
 from .get_data import get_city_ids, get_exchange_ids, get_currency_ids, get_security_ids, get_data_vendor_ids, get_country_ids
-from .validation import exchange_exists, security_exists, currency_exists
+from .validation import data_vendor_exists, exchange_exists, security_exists, currency_exists
 
 
 def insert_exchange(cursor, abbrev, *, exchange_name="", cityID, lst_cities = list()):
@@ -98,7 +98,9 @@ def insert_data_vendor(cursor, vendor_name, website_url):
     else:
         sanitized_vendor_name = vendor_name.replace("'", "`")
         sanitized_website_url = website_url.replace("'", "`")
-        cursor.execute(insert_data_vendor_query(sanitized_vendor_name, sanitized_website_url))
+        if not data_vendor_exists(vendor_name=sanitized_vendor_name, website=sanitized_website_url):
+            query = insert_data_vendor_query(sanitized_vendor_name, sanitized_website_url)
+            cursor.execute(query)
 
 def insert_currency(cursor, abbrev, currency_name):
     if not isinstance(cursor, Cursor):
