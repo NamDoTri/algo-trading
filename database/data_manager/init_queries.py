@@ -69,6 +69,7 @@ def create_daily_price_table():
             adjusted_close_price DECIMAL(12, 6) NULL DEFAULT NULL,
             high_price DECIMAL(12, 6) NULL DEFAULT NULL,
             low_price DECIMAL(12, 6) NULL DEFAULT NULL,
+            volume BIGINT NULL DEFAULT 0,
             price_date DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP(),
                 PRIMARY KEY (id)
         );
@@ -138,10 +139,10 @@ def insert_security_query(exchangeID, abbrev, security_name, company_name, curre
         VALUES ({exchangeID}, '{abbrev}', '{security_name}', '{company_name}', {currencyID})
     '''
 
-def insert_daily_price_query(securityID, data_vendorID, open_price, close_price, adjusted_close_price, high_price, low_price):
+def insert_daily_price_query(securityID, data_vendorID, date, open_price, close_price, adjusted_close_price, high_price, low_price, volume):
     return f'''
-        INSERT INTO {daily_price_table_name} (securityID, data_vendorID, open_price, close_price, adjusted_close_price, high_price, low_price)
-        VALUES ({securityID}, {data_vendorID}, {open_price}, {close_price}, {adjusted_close_price}, {high_price}, {low_price})
+        INSERT INTO {daily_price_table_name} (securityID, data_vendorID, price_date, open_price, close_price, adjusted_close_price, high_price, low_price, volume)
+        VALUES ({securityID}, {data_vendorID}, {date}, {open_price}, {close_price}, {adjusted_close_price}, {high_price}, {low_price}, {volume})
     '''
 
 def insert_data_vendor_query(vendor_name, website_url):
