@@ -1,4 +1,5 @@
 # venv directories
+env/*
 Include/
 Lib/
 Scripts/
