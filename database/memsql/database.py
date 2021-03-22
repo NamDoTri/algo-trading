@@ -23,7 +23,7 @@ def get_db_configs(config_path = './db_config.ini', section = 'database'):
 
     return username, password, host, port
     """
-    print('Accessing config file from {}'.format(os.getcwd()))
+    # print('Accessing config file from {}'.format(os.getcwd()))
     path = os.path.join(os.path.dirname(__file__), '../../db_config.ini')
     config = ConfigParser()
     config.read(path)
