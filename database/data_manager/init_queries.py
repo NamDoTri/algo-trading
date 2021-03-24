@@ -139,10 +139,10 @@ def insert_security_query(exchangeID, abbrev, security_name, company_name, curre
         VALUES ({exchangeID}, '{abbrev}', '{security_name}', '{company_name}', {currencyID})
     '''
 
-def insert_daily_price_query(securityID, data_vendorID, date, open_price, close_price, adjusted_close_price, high_price, low_price, volume):
+def insert_daily_price_query(securityID, data_vendorID, date, open_price, close_price, high_price, low_price, volume):
     return f'''
-        INSERT INTO {daily_price_table_name} (securityID, data_vendorID, price_date, open_price, close_price, adjusted_close_price, high_price, low_price, volume)
-        VALUES ({securityID}, {data_vendorID}, {date}, {open_price}, {close_price}, {adjusted_close_price}, {high_price}, {low_price}, {volume})
+        INSERT INTO {daily_price_table_name} (securityID, data_vendorID, price_date, open_price, close_price, high_price, low_price, volume)
+        VALUES ({securityID}, {data_vendorID}, {date}, {open_price}, {close_price}, {high_price}, {low_price}, {volume})
     '''
 
 def insert_data_vendor_query(vendor_name, website_url):

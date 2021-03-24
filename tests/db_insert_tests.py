@@ -64,7 +64,7 @@ class DBInsertTests(SequentialTest):
             self.fail()
 
     def step7_insert_daily_price(self, cursor):
-        insert_daily_price(cursor, 1, 1, '2017-02-4', 1.0, 1.0, 1.0, 1.0, 1.0, 10)
+        insert_daily_price(cursor, 1, 1, '2017-02-4', 1.0, 1.0, 1.0, 1.0, 10)
         cursor.execute(f"SELECT * FROM {daily_price_table_name} WHERE securityID=1")
         res = cursor.fetchone()
         if not (res is None):

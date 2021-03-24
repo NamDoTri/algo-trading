@@ -59,7 +59,7 @@ def insert_security(cursor, exchangeID, abbrev, *, security_name='', company_nam
                 query = insert_security_query(exchangeID, abbrev, sanitized_security_name, sanitized_company_name, currencyID)
                 cursor.execute(query)
 
-def insert_daily_price(cursor, securityID, data_vendorID, date, open_price, close_price, adjusted_close_price, high_price, low_price, volume, *, lst_securities=list(), lst_data_vendors=list()):
+def insert_daily_price(cursor, securityID, data_vendorID, date, open_price, close_price, high_price, low_price, volume, *, lst_securities=list(), lst_data_vendors=list()):
     """
         lst_securities: list of all securities in the database.
                     If not provided, the function will query the list 
@@ -79,14 +79,12 @@ def insert_daily_price(cursor, securityID, data_vendorID, date, open_price, clos
         raise Exception("Invalid value for open price.")
     elif not (isinstance(close_price, float)):
         raise Exception("Invalid value for close price.") 
-    elif not (isinstance(adjusted_close_price, float)):
-        raise Exception("Invalid value for adjusted close price.")
     elif not (isinstance(high_price, float)):
         raise Exception("Invalid value for high price.")
     elif not (isinstance(low_price, float)):
         raise Exception("Invalid value for low price.")
     else:
-        cursor.execute(insert_daily_price_query(securityID, data_vendorID, date, open_price, close_price, adjusted_close_price, high_price, low_price, volume))
+        cursor.execute(insert_daily_price_query(securityID, data_vendorID, date, open_price, close_price, high_price, low_price, volume))
     
 def insert_data_vendor(cursor, vendor_name, website_url):
     if not isinstance(cursor, Cursor):
