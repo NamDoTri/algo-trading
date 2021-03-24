@@ -4,7 +4,7 @@ from .get_data import get_city_ids, get_exchange_ids, get_currency_ids, get_secu
 from .validation import data_vendor_exists, exchange_exists, security_exists, currency_exists
 
 
-def insert_exchange(cursor, abbrev, *, exchange_name="", cityID, lst_cities = list()):
+def insert_exchange(cursor, abbrev, *, exchange_name="", cityID = 0, lst_cities = list()):
     """
         lst_cities: list of all cities in the database.
                     If not provided, the function will query the list 
@@ -26,7 +26,7 @@ def insert_exchange(cursor, abbrev, *, exchange_name="", cityID, lst_cities = li
                 query = insert_exchange_query(abbrev, sanitized_exchange_name, cityID)
                 cursor.execute(query)
 
-def insert_security(cursor, exchangeID, abbrev, *, security_name, company_name="", currencyID, lst_exchanges=list(), lst_currencies=list()):
+def insert_security(cursor, exchangeID, abbrev, *, security_name='', company_name="", currencyID, lst_exchanges=list(), lst_currencies=list()):
     """
         lst_exchanges: list of all exchanges in the database.
                     If not provided, the function will query the list 
@@ -102,7 +102,7 @@ def insert_data_vendor(cursor, vendor_name, website_url):
             query = insert_data_vendor_query(sanitized_vendor_name, sanitized_website_url)
             cursor.execute(query)
 
-def insert_currency(cursor, abbrev, currency_name):
+def insert_currency(cursor, abbrev, currency_name=''):
     if not isinstance(cursor, Cursor):
         raise Exception("No database cursor found")
     elif not isinstance(abbrev, str):
@@ -111,6 +111,7 @@ def insert_currency(cursor, abbrev, currency_name):
         raise Exception("Invalid currency name")
     else:
         if not currency_exists(currency_name=currency_name, currency_abbrev=abbrev):
+            if len(currency_name) == 0: currency_name = abbrev
             query = insert_currency_query(abbrev, currency_name)
             cursor.execute(query)
 
