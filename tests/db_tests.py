@@ -9,7 +9,7 @@ from database.data_manager.data_access import setup_schema_queries, setup_db, se
 from database.data_manager.data_access import connect_as_user
 from database.memsql.client import connect_as_root
 
-config_path = './db_config.ini'
+config_path = os.path.join(os.path.dirname(__file__), '../db_config.ini')
 
 class DbInitializationTest(SequentialTest):
     def step1_test_root_connection(self):
