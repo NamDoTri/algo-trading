@@ -15,7 +15,11 @@ def insert_yf_ticker(new_ticker):
         Parse a ticker from yfinance and insert if not exists
     """ 
     if type(new_ticker) == yf.Ticker:
-        symbol = new_ticker.info['symbol']
+        try:
+            symbol = new_ticker.info['symbol']
+        except ValueError as e:
+            raise e
+            
         if not security_exists(security_abbrev=symbol):
             conn = connect_as_user()
             cursor = conn.cursor()
