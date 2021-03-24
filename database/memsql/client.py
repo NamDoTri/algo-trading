@@ -1,6 +1,7 @@
+import os
 from pathlib import Path
 import MySQLdb
-from database.memsql.database import get_db_configs
+from .database import get_db_configs
 
 def connect_as_root(config_path):
     if Path(config_path).is_file():
@@ -17,4 +18,5 @@ def connect_as_root(config_path):
 
 
 if __name__ == "__main__":
-    connect_as_root('./db_config.ini')
+    path = os.path.join(os.path.dirname(__file__), '../../db_config.ini')
+    connect_as_root(path)
