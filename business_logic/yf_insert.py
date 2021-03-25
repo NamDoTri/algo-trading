@@ -8,7 +8,7 @@ from pandas.core.indexes.datetimes import DatetimeIndex
 from database.data_manager.data_access import connect_as_user
 from database.data_manager.init_queries import insert_daily_price_query
 from business_logic.validation import security_exists
-from business_logic.insert import insert_city, insert_currency, insert_exchange, insert_security
+from business_logic.insert import insert_currency, insert_exchange, insert_security
 from business_logic.get_data import get_currency_ids, get_exchange_ids, get_security_ids, get_security_symbols
 
 def insert_yf_ticker(new_ticker):

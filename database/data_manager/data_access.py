@@ -5,10 +5,10 @@ from MySQLdb.cursors import Cursor
 import MySQLdb
 
 #region SETUP
-def setup_db(config_path, *,drop_old_info=False):
-    cursor = connect_as_root(config_path).cursor()
+def setup_db(drop_old_info=False):
+    cursor = connect_as_root().cursor()
     create_db(cursor, drop_old_db=drop_old_info)
-    create_SU_grant_all(cursor, config_path, drop_old_user=drop_old_info)
+    create_SU_grant_all(cursor, drop_old_user=drop_old_info)
 
 def setup_schema(cursor):
     if isinstance(cursor, Cursor):
@@ -21,8 +21,8 @@ def create_db(cursor, *, drop_old_db=False):
         cursor.execute('DROP DATABASE IF EXISTS algotrading')
     cursor.execute(create_database_query())
 
-def create_SU_grant_all(cursor, config_path, *, drop_old_user=False):
-    username, password, host, port = get_db_configs(config_path, 'algotrader1')
+def create_SU_grant_all(cursor, *, drop_old_user=False):
+    username, password, host, port = get_db_configs('algotrader1')
 
     if drop_old_user:
         cursor.execute("DROP USER IF EXISTS '{}'@'{}'".format(username, host))

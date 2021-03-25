@@ -9,15 +9,13 @@ from database.data_manager.data_access import setup_schema_queries, setup_db, se
 from database.data_manager.data_access import connect_as_user
 from database.memsql.client import connect_as_root
 
-config_path = os.path.join(os.path.dirname(__file__), '../db_config.ini')
-
 class DbInitializationTest(SequentialTest):
     def step1_test_root_connection(self):
-        connection = connect_as_root(config_path)
+        connection = connect_as_root()
         self.assertIsInstance(connection, DB_Connection)
 
     def step2_test_SU_connection(self):
-        setup_db(config_path, drop_old_info=True)
+        setup_db(drop_old_info=True)
         conn = connect_as_user('algotrader1')
         self.assertIsInstance(conn, DB_Connection)
 

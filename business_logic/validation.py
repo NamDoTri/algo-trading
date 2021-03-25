@@ -1,4 +1,3 @@
-from MySQLdb import cursors
 from database.data_manager.init_queries import exchange_table_name, currency_table_name, securities_table_name, data_vendor_table_name
 from database.data_manager.data_access import connect_as_user
 
