@@ -58,7 +58,11 @@ class yFinanceInsertTest(unittest.TestCase):
         self.assertEqual(num_affected_rows, len(data))
 
     def test_bulk_insert_daily_price(self):
-        pass
+        lst_symbols = ['AAPL', 'TSLA', 'MSFT']
+        data = yf.download(lst_symbols, period='1mo', group_by='tickers')
+        num_affected_rows = bulk_insert_yf_daily_price(lst_symbols, data, data_vendorID=1)
+        expected_rows = len(data) * len(lst_symbols)
+        self.assertEqual(num_affected_rows, expected_rows)
 
 if __name__ == "__main__":
     unittest.main()

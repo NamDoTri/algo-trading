@@ -58,10 +58,10 @@ def bulk_insert_yf_daily_price(lst_symbols, dataset, *, data_vendorID, cursor = 
                     ticker = yf.Ticker(symbol)
                     insert_yf_ticker(ticker)
                     
-                securityID = get_security_ids(f"WHERE abbrev = '{symbol}'")
+                securityID = get_security_ids(f"WHERE abbrev = '{symbol}'")[0]
                 data = dataset[symbol]
-                data = parse_price_df(data)
-                number_of_rows += insert_yf_daily_price(securityID, data, data_vendorID=data_vendorID)
+                prep_data = parse_price_df(data)
+                number_of_rows += insert_yf_daily_price(securityID, prep_data, data_vendorID=data_vendorID)
 
             return number_of_rows
         else:
@@ -94,7 +94,8 @@ def parse_price_df(orig_data) -> list:
     if isinstance(orig_data, DataFrame):
         if (orig_data.shape[1] >= 5) and isinstance(orig_data.index, DatetimeIndex):
             data = orig_data.copy()
-            data = data.iloc[:, 0:5] # slice necessary columns
+            lst_necessary_cols = ['Open', 'High', 'Low', 'Close', 'Volume']
+            data = data[lst_necessary_cols]
             data.index = data.index.strftime('%d-%m-%Y')
             return data.to_records(index=True).tolist()
         else:
