@@ -11,8 +11,19 @@ def currency_exists(currency_name='', currency_abbrev='') -> bool:
     return does_exist(query)
 
 def security_exists(security_name='', security_abbrev='') -> bool:
-    query = f"SELECT ID FROM {securities_table_name} WHERE security_name = '{security_name}' OR abbrev = '{security_abbrev}'"
-    return does_exist(query)
+    query = ''
+    if len(security_name) == 0 and len(security_abbrev) == 0:
+        return False
+    elif len(security_name) > 0:
+        query = f"SELECT ID FROM {securities_table_name} WHERE security_name = '{security_name}'"
+        return does_exist(query)
+    elif len(security_abbrev) > 0:
+        query = f"SELECT ID FROM {securities_table_name} WHERE abbrev = '{security_abbrev}'"
+        return does_exist(query)
+    else:
+        query = f"SELECT ID FROM {securities_table_name} WHERE security_name = '{security_name}' AND abbrev = '{security_abbrev}'"
+        return does_exist(query)
+        
 
 def data_vendor_exists(vendor_name='', website=''):
     query = f"SELECT ID FROM {data_vendor_table_name} WHERE vendor_name = '{vendor_name}' OR website_url = '{website}'"
@@ -23,4 +34,5 @@ def does_exist(query) -> bool:
     cursor = conn.cursor()
     cursor.execute(query)
     res = cursor.fetchall()
-    return len(res) > 0
+    does_exist = len(res) > 0
+    return does_exist
