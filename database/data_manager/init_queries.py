@@ -83,7 +83,7 @@ def create_data_vendor_table():
             vendor_name VARCHAR(20) NOT NULL DEFAULT '',
             website_url VARCHAR(50) NOT NULL,
             created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP(),
-            updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP() ON UPDATE CURRENT_TIMESTAMP(),
+            last_updated DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP() ON UPDATE CURRENT_TIMESTAMP(),
                 PRIMARY KEY (id)
         );
     '''
