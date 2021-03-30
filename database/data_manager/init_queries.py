@@ -28,7 +28,7 @@ def create_exchange_table():
     return f'''
         CREATE TABLE IF NOT EXISTS {exchange_table_name} 
         (
-            id BIGINT AUTO_INCREMENT,
+            id INT AUTO_INCREMENT,
             abbrev VARCHAR(64),
             exchange_name VARCHAR(255) NOT NULL,
             cityID INT NULL,
@@ -42,7 +42,7 @@ def create_securities_table():
     return f'''
         CREATE TABLE IF NOT EXISTS {securities_table_name}
         (
-            id BIGINT AUTO_INCREMENT,
+            id INT AUTO_INCREMENT,
             exchangeID BIGINT NOT NULL,
             abbrev VARCHAR(32) NOT NULL, 
             security_name VARCHAR(255) NOT NULL,
@@ -61,14 +61,14 @@ def create_daily_price_table():
     return f'''
         CREATE TABLE IF NOT EXISTS {daily_price_table_name} 
         (
-            id INT NOT NULL AUTO_INCREMENT,
+            id BIGINT NOT NULL AUTO_INCREMENT,
             securityID INT NOT NULL,
             data_vendorID INT NOT NULL,
             open_price DECIMAL(12, 6) NULL DEFAULT NULL,
-            close_price DECIMAL(12, 6) NULL DEFAULT NULL,
-            adjusted_close_price DECIMAL(12, 6) NULL DEFAULT NULL,
             high_price DECIMAL(12, 6) NULL DEFAULT NULL,
             low_price DECIMAL(12, 6) NULL DEFAULT NULL,
+            close_price DECIMAL(12, 6) NULL DEFAULT NULL,
+            adjusted_close_price DECIMAL(12, 6) NULL DEFAULT NULL,
             volume BIGINT NULL DEFAULT 0,
             price_date DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP(),
                 PRIMARY KEY (id)
