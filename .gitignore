@@ -9,7 +9,7 @@ Scripts/
 *.ini
 
 # temp files
-temp.*
+temp*.*
 *.pyc
 
 #debug config file
