@@ -1,7 +1,7 @@
 from MySQLdb.cursors import Cursor
-from database.data_manager.init_queries import insert_exchange_query, insert_security_query, insert_daily_price_query, insert_data_vendor_query, insert_currency_query, insert_city_query, insert_country_query
+from database.data_manager.init_queries import insert_exchange_query, insert_security_query, insert_daily_price_query, insert_data_vendor_query, insert_currency_query, insert_city_query, insert_country_query, insert_transaction_query
 from .get_data import get_city_ids, get_exchange_ids, get_currency_ids, get_security_ids, get_data_vendor_ids, get_country_ids
-from .validation import data_vendor_exists, exchange_exists, security_exists, currency_exists
+from .validation import data_vendor_exists, exchange_exists, security_exists, currency_exists, strategy_exists
 
 
 def insert_exchange(cursor, abbrev, *, exchange_name="", cityID = 0, lst_cities = list()):
@@ -143,3 +143,27 @@ def insert_country(cursor, abbrev, country_name):
     else:
         sanitized_country_name = country_name.replace("'", "`")
         cursor.execute(insert_country_query(abbrev, sanitized_country_name))
+
+def insert_transaction(cursor, securityID, size, buy_price, sell_price, bought_at, sold_at, strategy):
+    if not isinstance(cursor, Cursor):
+        raise Exception("No database cursor found")
+    elif not isinstance(securityID, int):
+        raise TypeError('securityID must be an integer.')
+    elif not isinstance(size, int):
+        raise TypeError('size of the transaction must be an integer.')
+    elif not isinstance(buy_price, float):
+        raise TypeError('buy_price must be a float.')
+    elif not isinstance(sell_price, float):
+        raise TypeError('sell_price must be a float.')
+    elif not isinstance(strategy, str):
+        raise TypeError('strategy must be a string.')
+    else:
+        lst_securities = get_security_ids()
+        if securityID in lst_securities:
+            if strategy_exists(strategy):
+                query = insert_transaction_query(securityID, size, buy_price, sell_price, bought_at, sold_at, strategy)
+                cursor.execute(query)
+            else:
+                raise Exception('Cannot find the strategy with the specified name.')
+        else:
+            raise ValueError('A security with this ID does not exist.')

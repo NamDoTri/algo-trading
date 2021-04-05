@@ -4,10 +4,10 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')
 
 from MySQLdb.cursors import Cursor
 from sequential_test import SequentialTest
-from business_logic.insert import insert_exchange, insert_security, insert_daily_price, insert_data_vendor, insert_currency, insert_city, insert_country
+from business_logic.insert import insert_exchange, insert_security, insert_daily_price, insert_data_vendor, insert_currency, insert_city, insert_country, insert_transaction
 from business_logic.delete import delete_exchange
 from database.data_manager.data_access import connect_as_user
-from database.data_manager.init_queries import country_table_name, city_table_name, currency_table_name, data_vendor_table_name, exchange_table_name, securities_table_name, daily_price_table_name
+from database.data_manager.init_queries import country_table_name, city_table_name, currency_table_name, data_vendor_table_name, exchange_table_name, securities_table_name, daily_price_table_name, transaction_table_name
 from tests.db_tests import DbInitializationTest
 from helpers.printing import mute_log, unmute_log
 
@@ -72,7 +72,15 @@ class DBInsertTests(SequentialTest):
         else:
             self.fail()
 
-    def step8_delete_exchange(self, cursor):
+    def step8_insert_transaction(self, cursor):
+        bought_at = '2021-03-04 12:00:00'
+        sold_at = '2021-03-04 13:00:00'
+        insert_transaction(cursor, 1, 10,  10.0, 11.0, bought_at, sold_at, 'MACrossOverStrategy')
+        cursor.execute(f"SELECT * FROM {transaction_table_name} WHERE securityID=1")
+        res = cursor.fetchone()
+        self.assertIsNotNone(res)
+
+    def step9_delete_exchange(self, cursor):
         delete_exchange(cursor, lst_IDs=[1])
         is_passed = True
 
@@ -86,6 +94,10 @@ class DBInsertTests(SequentialTest):
 
         if is_passed: 
             cursor.execute(f"SELECT * FROM {daily_price_table_name} WHERE securityID=1")
+            if cursor.fetchone() != None: is_passed = False
+
+        if is_passed:
+            cursor.execute(f"SELECT * FROM {transaction_table_name} WHERE securityID=1")
             if cursor.fetchone() != None: is_passed = False
 
         self.assertTrue(is_passed)

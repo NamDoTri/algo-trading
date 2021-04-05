@@ -7,6 +7,7 @@ data_vendor_table_name = 'data_vendor'
 currency_table_name = 'currency'
 city_table_name = 'city'
 country_table_name = 'country'
+transaction_table_name = 'transactions'
 
 
 #region DATABASE & USERS
@@ -124,6 +125,22 @@ def create_country_table():
             PRIMARY KEY (id)
     ) AUTO_INCREMENT=1;
     '''
+
+def create_transaction_table():
+    return f'''
+        CREATE TABLE IF NOT EXISTS {transaction_table_name}
+        (
+            id BIGINT NOT NULL AUTO_INCREMENT,
+            securityID INT NOT NULL,
+            size INT NOT NULL,
+            buy_price DECIMAL(12, 6) NULL DEFAULT NULL,
+            sell_price DECIMAL(12, 6) NULL DEFAULT NULL,
+            bought_at DATETIME NOT NULL,
+            sold_at DATETIME NOT NULL,
+            strategy VARCHAR(50) NOT NULL,
+                PRIMARY KEY (id)
+        );
+    '''
 #endregion
 
 #region INSERT
@@ -168,6 +185,12 @@ def insert_country_query(abbrev, country_name):
         INSERT INTO {country_table_name} (abbrev, country_name)
         VALUES ('{abbrev}', '{country_name}')
     '''
+
+def insert_transaction_query(securityID, size, buy_price, sell_price, bought_at, sold_at, strategy):
+    return f'''
+        INSERT INTO {transaction_table_name} (securityID, size, buy_price, sell_price, bought_at, sold_at, strategy)
+        VALUES ({securityID}, {size}, {buy_price}, {sell_price}, '{bought_at}', '{sold_at}', '{strategy}')
+    '''
 #endregion
 
 #region DELETE
@@ -187,4 +210,4 @@ def delete_all_query(table_name):
 
 setup_db_queries = [create_database_query, create_user_query, grant_all_query]
 setup_schema_queries = [ create_exchange_table, create_securities_table, create_daily_price_table, 
-                create_data_vendor_table, create_currency_table, create_city_table, create_country_table]
+                create_data_vendor_table, create_currency_table, create_city_table, create_country_table, create_transaction_table]

@@ -22,7 +22,6 @@ def security_exists(security_name='', security_abbrev='') -> bool:
     else:
         query = f"SELECT ID FROM {securities_table_name} WHERE security_name = '{security_name}' AND abbrev = '{security_abbrev}'"
         return does_exist(query)
-        
 
 def data_vendor_exists(vendor_name='', website=''):
     query = f"SELECT ID FROM {data_vendor_table_name} WHERE vendor_name = '{vendor_name}' OR website_url = '{website}'"
@@ -35,3 +34,10 @@ def does_exist(query) -> bool:
     res = cursor.fetchall()
     does_exist = len(res) > 0
     return does_exist
+
+def strategy_exists(strategy_name) -> bool:
+    if isinstance(strategy_name, str):
+        # TODO
+        return True
+    else:
+        raise ValueError('strategy_name must be a string.')
