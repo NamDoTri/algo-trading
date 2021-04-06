@@ -26,3 +26,7 @@ def get_db_configs():
         db_port = int(config['MONGODB']['DATABASE_PORT'])
         collection_name = config['MONGODB']['COLLECTION_NAME']
         return (db_name, db_host, db_port, collection_name)
+
+def reset_db(db_connection = None):
+    conn = db_connection if db_connection is pymongo.database.Database else get_mongo_db_conn()
+    conn.drop()
