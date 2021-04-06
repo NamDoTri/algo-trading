@@ -1,14 +1,16 @@
+from typing import Collection
 import pymongo
 import os 
 from configparser import ConfigParser
 
 def get_mongo_db_conn() -> pymongo.database.Database:
-    db_name, db_host, db_port = get_db_configs()
+    db_name, db_host, db_port, collection_name = get_db_configs()
 
     try:
         client = pymongo.MongoClient(db_host, db_port)
         db = client[db_name]
-        return db 
+        conn = db[collection_name]
+        return conn
     except pymongo.errors.ConnectionFailure:
         raise ConnectionError('Cannot connect to MongoDB server.')
 
@@ -22,4 +24,5 @@ def get_db_configs():
         db_name = config['MONGODB']['DATABASE_NAME']
         db_host = config['MONGODB']['DATABASE_HOST']
         db_port = int(config['MONGODB']['DATABASE_PORT'])
-        return (db_name, db_host, db_port)
+        collection_name = config['MONGODB']['COLLECTION_NAME']
+        return (db_name, db_host, db_port, collection_name)
