@@ -12,23 +12,21 @@ class MongoDBConnectionTest(unittest.TestCase):
 
     def setUp(self):
         reset_db()
+        self.conn = get_mongo_db_conn()
 
     def test1_connection(self):
-        db_conn = get_mongo_db_conn()
-        self.assertIsInstance(db_conn, Collection)
+        self.assertIsInstance(self.conn, Collection)
 
     def test2_saving_model(self):
-        conn = get_mongo_db_conn()
-        new_ID = save_model_to_mongo('Test string as object', self.MODEL_NAME, conn)
-        res = conn.find_one({'model_name': self.MODEL_NAME})
+        new_ID = save_model_to_mongo('Test string as object', self.MODEL_NAME, self.conn)
+        res = self.conn.find_one({'model_name': self.MODEL_NAME})
         saved_ID = res['_id']
 
         self.assertEqual(new_ID, saved_ID)
 
     def test3_loading_model(self):
-        conn = get_mongo_db_conn()
-        save_model_to_mongo('Test string as object', self.MODEL_NAME, conn)
-        res = load_saved_model_from_mongo(self.MODEL_NAME)
+        save_model_to_mongo('Test string as object', self.MODEL_NAME, self.conn)
+        res = load_saved_model_from_mongo(self.MODEL_NAME, self.conn)
         self.assertIsInstance(res, str)
 
 
