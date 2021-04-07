@@ -33,7 +33,7 @@ def insert_default_values(cursor):
     cursor.execute('USE algotrading')
     query = insert_metadata_query('%s', '%s')
     init_values = (
-        ('inv_cap', 4000),
+        ('balance', 4000),
         ('current_strategy', 'MACrossover')
     )
     cursor.executemany(query, init_values)
