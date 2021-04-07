@@ -8,7 +8,7 @@ currency_table_name = 'currency'
 city_table_name = 'city'
 country_table_name = 'country'
 transaction_table_name = 'transactions'
-
+metadata_table_name = 'metadata'
 
 #region DATABASE & USERS
 def create_database_query():
@@ -141,6 +141,17 @@ def create_transaction_table():
                 PRIMARY KEY (id)
         );
     '''
+
+def create_metadata_table():
+    return f'''
+        CREATE TABLE IF NOT EXISTS {metadata_table_name}
+        (   
+            id INT NOT NULL AUTO_INCREMENT,
+            field VARCHAR(50) NOT NULL,
+            val VARCHAR(50) NOT NULL,
+                PRIMARY KEY (id)
+        )
+    '''
 #endregion
 
 #region INSERT
@@ -191,6 +202,12 @@ def insert_transaction_query(securityID, size, buy_price, sell_price, bought_at,
         INSERT INTO {transaction_table_name} (securityID, size, buy_price, sell_price, bought_at, sold_at, strategy)
         VALUES ({securityID}, {size}, {buy_price}, {sell_price}, '{bought_at}', '{sold_at}', '{strategy}')
     '''
+
+def insert_metadata_query(field, value):
+    return f'''
+        INSERT INTO {metadata_table_name} (field, val)
+        VALUES ({field}, {value});
+    '''
 #endregion
 
 #region DELETE
@@ -210,4 +227,5 @@ def delete_all_query(table_name):
 
 setup_db_queries = [create_database_query, create_user_query, grant_all_query]
 setup_schema_queries = [ create_exchange_table, create_securities_table, create_daily_price_table, 
-                create_data_vendor_table, create_currency_table, create_city_table, create_country_table, create_transaction_table]
+                        create_data_vendor_table, create_currency_table, create_city_table, create_country_table, 
+                        create_transaction_table, create_metadata_table]
