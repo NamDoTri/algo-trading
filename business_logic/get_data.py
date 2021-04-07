@@ -1,8 +1,12 @@
+from numpy.lib.arraysetops import isin
 import yfinance as yf
+from pandas import DataFrame
 from MySQLdb.cursors import Cursor
 from database.data_manager.init_queries import exchange_table_name, securities_table_name, currency_table_name, city_table_name, country_table_name, data_vendor_table_name
 from database.data_manager.data_access import connect_as_user
+from business_logic.decision_making.data_prepration import get_OHLC_df
 
+# REGION FROM DATABASE
 def get_country_ids(cursor=None):
     csr = cursor if cursor is Cursor else connect_as_user().cursor()
     if csr:
@@ -78,9 +82,20 @@ def get_data_vendor_ids(cursor=None):
     else:
         raise Exception(get_data_vendor_ids.__name__ + '  Cannot connect to the database to verify data vendor.')
 
+#ENDREGION
+
 def fetch_info_of(symbol) -> str:
     ticker = yf.Ticker(symbol)
     try:
         return ticker.info
     except ValueError as e:
         raise Exception(e)
+
+
+def fetch_latest_price(ticker) -> DataFrame:
+    if isinstance(ticker, yf.Ticker):
+        data = ticker.history(period='1d', interval='1m')
+        data = get_OHLC_df(data[-1:]) # get only the last row
+        return data
+    else:
+        raise TypeError('ticker must be a valid instance of type yfinance.Ticker')
