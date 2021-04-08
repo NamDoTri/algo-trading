@@ -1,3 +1,4 @@
+from yfinance.ticker import Ticker
 from database.data_manager.init_queries import exchange_table_name, currency_table_name, securities_table_name, data_vendor_table_name
 from database.data_manager.data_access import connect_as_user
 
@@ -41,3 +42,13 @@ def strategy_exists(strategy_name) -> bool:
         return True
     else:
         raise ValueError('strategy_name must be a string.')
+
+def ticker_is_valid(ticker) -> bool:
+    if isinstance(ticker, Ticker):
+        try:
+            test_data = ticker.info['symbol']
+            return True
+        except ValueError as e:
+            return False
+    else:
+        raise TypeError('This requires a Ticker object.')
