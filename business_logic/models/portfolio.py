@@ -1,6 +1,7 @@
-from os.path import expanduser
+from multiprocessing import Value
 import pickle
 import re
+
 from .stock import Stock
 from multipledispatch import dispatch
 
@@ -31,19 +32,41 @@ class Portfolio:
         '''
             Add a new yfinance.Ticker to this portfolio
         '''
-        # add stock
+        # TODO: implement ignore_balance_check ?
         if isinstance(stock, Stock):
-            if len(self.lst_stocks) < 5:
-                if stock.total_worth() <= self.max_per_stock:
-                    self.lst_stocks.append(stock)
+            if stock not in self:
+                if len(self.lst_stocks) <= 5:
+                    if stock.total_worth() <= self.max_per_stock:
+                        self.lst_stocks.append(stock)
+                        self.balance -= stock.total_worth()
+                    else:
+                        raise Exception(f'Total worth of {stock.symbol} exceeds what is allocated for it.')
                 else:
-                    raise Exception('The total sum of this stock exceeds the amount of balance allocated for it.')
+                    raise Exception('A portfolio can only holds 5 stocks at a time.')
             else:
-                raise Exception('A portfolio can only holds 5 stocks at a time.')
+                raise ValueError(f'Portfolio already has stock with symbol {stock.symbol}')
         else:
             raise TypeError('Parameter stock must be of type Stock.')
+
+    def sell_stock(self, symbol):
+        if isinstance(symbol, str):
+            try:
+                stock = next(s for s in self.lst_stocks if s.symbol == symbol)
+                balance_gain = stock.total_worth()
+                self.balance += balance_gain
+                self.lst_stocks.remove(stock)
+            except StopIteration:
+                raise ValueError(f"Portfolio doesn't contain stock with symbol {symbol}.")
+        else:
+            raise TypeError('symbol parameter must be a string.')
 
     def is_using_ML(self) -> bool:
         pattern = re.compile('^ML_')
         res = pattern.match(self.current_strategy)
         return res is not None
+
+    def __contains__(self, stock):
+        if isinstance(stock, Stock):
+            return stock.symbol in [stock.symbol for stock in self.lst_stocks]
+        else:
+            return False
