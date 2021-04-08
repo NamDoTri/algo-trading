@@ -1,7 +1,5 @@
-from numpy.lib.arraysetops import isin
 import pandas as pd
 import numpy as np
-import yfinance as yf
 
 import sys, os
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
@@ -28,11 +26,16 @@ def label_OHLC_df(orig_data, period, small_change_threshold=None) -> pd.DataFram
         data.Close = data.Close.pct_change(period)
 
         #labeling
-        data.Close[ data.Close > 0 ] = 1
+        mask_increase = data.Close > 0
+        data.loc[mask_increase, 'Close'] = 1
+
         if isinstance(small_change_threshold, float) and small_change_threshold < 1:
             threshold = small_change_threshold
-            data.Close[ data.Close.between(-threshold, threshold)] = 0 # ignore too small changes
-        data.Close[ data.Close < 0 ] = -1
+            mask_remain = data.Close.between(-threshold, threshold)
+            data.loc[mask_remain, 'Close' ] = 0 # ignore too small changes
+
+        mask_decrease = data.Close < 0
+        data.loc[mask_decrease, 'Close' ] = -1
 
         # crop out NaN values in the first few rows
         data = data.iloc[period:]
