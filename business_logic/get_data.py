@@ -4,9 +4,8 @@ from pandas import DataFrame
 from MySQLdb.cursors import Cursor, DictCursor
 from database.data_manager.init_queries import exchange_table_name, securities_table_name, currency_table_name, city_table_name, country_table_name, data_vendor_table_name, metadata_table_name
 from database.data_manager.data_access import connect_as_user
-from business_logic.decision_making.data_prepration import get_OHLC_df
+from business_logic.decision_making.data_prepration import get_OHLC_df, label_OHLC_df
 from .models.portfolio import Portfolio
-from business_logic.models import portfolio
 
 # REGION FROM DATABASE
 def get_country_ids(cursor=None):
@@ -113,10 +112,11 @@ def fetch_info_of(symbol) -> str:
         raise Exception(e)
 
 
-def fetch_latest_price(ticker) -> DataFrame:
+def fetch_label_latest_price(ticker) -> DataFrame:
     if isinstance(ticker, yf.Ticker):
         data = ticker.history(period='1d', interval='1m')
-        data = get_OHLC_df(data[-1:]) # get only the last row
+        data = label_OHLC_df(data, 2, small_change_threshold=0.004)
+        data = get_OHLC_df(data.iloc[-1:]) # get only the last row
         return data
     else:
         raise TypeError('Ticker must be a valid instance of type yfinance.Ticker')
