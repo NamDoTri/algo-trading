@@ -1,12 +1,8 @@
 from os.path import expanduser
 import pickle
+import re
 from .stock import Stock
 from multipledispatch import dispatch
-import sys
-import os
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-
-from business_logic.validation import ticker_is_valid
 
 class Portfolio:
     balance = 4000
@@ -46,3 +42,8 @@ class Portfolio:
                 raise Exception('A portfolio can only holds 5 stocks at a time.')
         else:
             raise TypeError('Parameter stock must be of type Stock.')
+
+    def is_using_ML(self) -> bool:
+        pattern = re.compile('^ML_')
+        res = pattern.match(self.current_strategy)
+        return res is not None
