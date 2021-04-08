@@ -1,10 +1,12 @@
-from numpy.lib.arraysetops import isin
 import yfinance as yf
+import re
 from pandas import DataFrame
-from MySQLdb.cursors import Cursor
-from database.data_manager.init_queries import exchange_table_name, securities_table_name, currency_table_name, city_table_name, country_table_name, data_vendor_table_name
+from MySQLdb.cursors import Cursor, DictCursor
+from database.data_manager.init_queries import exchange_table_name, securities_table_name, currency_table_name, city_table_name, country_table_name, data_vendor_table_name, metadata_table_name
 from database.data_manager.data_access import connect_as_user
 from business_logic.decision_making.data_prepration import get_OHLC_df
+from .models.portfolio import Portfolio
+from business_logic.models import portfolio
 
 # REGION FROM DATABASE
 def get_country_ids(cursor=None):
@@ -82,6 +84,25 @@ def get_data_vendor_ids(cursor=None):
     else:
         raise Exception(get_data_vendor_ids.__name__ + '  Cannot connect to the database to verify data vendor.')
 
+def fetch_portfolio(db_cursor = None) -> Portfolio:
+    cursor = db_cursor if db_cursor is DictCursor else connect_as_user().cursor(DictCursor)
+    if cursor:
+        query = f'SELECT * FROM {metadata_table_name}'
+        cursor.execute(query)
+        res = cursor.fetchall()
+        is_stock = re.compile('^stock_')
+        portfolio = Portfolio()
+        for row in res:
+            field = row['field']
+            if field == 'balance':
+                portfolio.balance = float(row['val'])
+            elif field == 'current_strategy':
+                portfolio.current_strategy = str(row['val'])
+            elif is_stock.match(field):
+                pickled_stock = row['val']
+                portfolio.add_stock(pickled_stock)
+        return portfolio
+
 #ENDREGION
 
 def fetch_info_of(symbol) -> str:
@@ -98,4 +119,4 @@ def fetch_latest_price(ticker) -> DataFrame:
         data = get_OHLC_df(data[-1:]) # get only the last row
         return data
     else:
-        raise TypeError('ticker must be a valid instance of type yfinance.Ticker')
+        raise TypeError('Ticker must be a valid instance of type yfinance.Ticker')
