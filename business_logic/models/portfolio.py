@@ -6,14 +6,12 @@ from .stock import Stock
 from multipledispatch import dispatch
 
 class Portfolio:
-    balance = 4000
-    current_strategy = ''
-    num_stocks = 5
-    lst_stocks = [] # holds 5 stocks
-    max_per_stock = balance/num_stocks
-
-    def __init__(self) -> None:
-        pass
+    def __init__(self):
+        self.balance = 4000
+        self.current_strategy = ''
+        self.num_stocks = 5
+        self.lst_stocks = [] # holds 5 stocks max
+        self.max_per_stock = self.balance/self.num_stocks
 
     @dispatch(str)
     def add_stock(self, value):
