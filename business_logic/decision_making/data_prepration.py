@@ -65,3 +65,4 @@ def validate_input_df(data) -> bool:
             raise Exception('DataFrame must be OHLC data.')
         if not data.Close.dtype == np.float:
             raise TypeError('Values in column Close must be of type numpy.float')
+    return True
