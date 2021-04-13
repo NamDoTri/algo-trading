@@ -1,9 +1,11 @@
+import pickle
 import yfinance as yf
-import re
+from pymongo.collection import Collection
 from pandas import DataFrame
 from MySQLdb.cursors import Cursor, DictCursor
 from database.data_manager.init_queries import exchange_table_name, securities_table_name, currency_table_name, city_table_name, country_table_name, data_vendor_table_name, metadata_table_name
 from database.data_manager.data_access import connect_as_user
+from database.mongo_client import get_mongo_db_conn
 from business_logic.decision_making.data_prepration import get_OHLC_df, label_OHLC_df
 from .models.portfolio import Portfolio
 
@@ -89,7 +91,6 @@ def fetch_portfolio(db_cursor = None) -> Portfolio:
         query = f'SELECT * FROM {metadata_table_name}'
         cursor.execute(query)
         res = cursor.fetchall()
-        is_stock = re.compile('^stock_')
         portfolio = Portfolio()
         for row in res:
             field = row['field']
@@ -97,10 +98,20 @@ def fetch_portfolio(db_cursor = None) -> Portfolio:
                 portfolio.balance = float(row['val'])
             elif field == 'current_strategy':
                 portfolio.current_strategy = str(row['val'])
-            elif is_stock.match(field):
-                pickled_stock = row['val']
-                portfolio.add_stock(pickled_stock)
+        portfolio.lst_stocks = fetch_stocks()
         return portfolio
+
+def fetch_stocks(db_conn = None) -> list:
+    conn = object()
+    stock_collection_name = 'owned_stocks'
+    if db_conn is Collection:
+        if db_conn.name == stock_collection_name:
+            conn = db_conn
+    else:
+        conn = get_mongo_db_conn(stock_collection_name)
+
+    res = conn.find({})
+    return [pickle.loads(doc) for doc in res]
 
 #ENDREGION
 
