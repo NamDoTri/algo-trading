@@ -24,14 +24,25 @@ def main():
         if tech_indicator == TAStrategy.SMACrossover.name:
             decision_maker = SMACrossover()
 
+    # TESTING
+    if len(portfolio.lst_stocks) <= 0:
+        portfolio.add_stock(Stock('AAPL', 0, 0, None))
+        portfolio.add_stock(Stock('MSFT', 0, 0, None))
+        portfolio.add_stock(Stock('AMZN', 0, 0, None))
+        portfolio.add_stock(Stock('FB', 0, 0, None))
+        portfolio.add_stock(Stock('GOOGL', 0, 0, None))
+    
+
     if len(portfolio.lst_symbols) > 0:
         # prepare data
         query = ' '.join(portfolio.lst_symbols)
         data = yf.download(query, period='1mo', interval='1d', group_by='tickers')
+        lst_columns = ('Open', 'High', 'Low', 'Close')
 
         # loop through ticker list
         for symbol in portfolio.lst_symbols:
-            ticker_data = data[symbol]
+            ticker_data = data.loc[:, (symbol, lst_columns)]
+            ticker_data.columns = ticker_data.columns.get_level_values(1)
             decision = decision_maker.should_buy(ticker_data)
             stock = object()
 

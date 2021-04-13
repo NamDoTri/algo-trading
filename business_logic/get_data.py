@@ -111,7 +111,7 @@ def fetch_stocks(db_conn = None) -> list:
         conn = get_mongo_db_conn(stock_collection_name)
 
     res = conn.find({})
-    return [pickle.loads(doc) for doc in res]
+    return [pickle.loads(doc['stock_bin']) for doc in res]
 
 #ENDREGION
 
