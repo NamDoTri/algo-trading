@@ -3,8 +3,10 @@ import pymongo
 import os 
 from configparser import ConfigParser
 
-def get_mongo_db_conn() -> pymongo.database.Database:
-    db_name, db_host, db_port, collection_name = get_db_configs()
+def get_mongo_db_conn(collection_name = '') -> pymongo.database.Database:
+    db_name, db_host, db_port, _ = get_db_configs()
+    if len(collection_name) == 0:
+        collection_name = _
 
     try:
         client = pymongo.MongoClient(db_host, db_port)
@@ -13,6 +15,7 @@ def get_mongo_db_conn() -> pymongo.database.Database:
         return conn
     except pymongo.errors.ConnectionFailure:
         raise ConnectionError('Cannot connect to MongoDB server.')
+
 
 def get_db_configs():
     print(f'Accessing config file from {os.getcwd()}')
