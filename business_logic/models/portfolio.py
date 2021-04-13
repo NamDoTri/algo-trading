@@ -80,8 +80,12 @@ class Portfolio:
         cursor.executemany(query, lst_params)
         self.save_stocks()
 
-    def save_stocks(self):
+    def save_stocks(self, drop_old_entries = True):
         conn = get_mongo_db_conn('owned_stocks')
+
+        if drop_old_entries:
+            conn.drop()
+
         for stock in self.lst_stocks:
             serialized_stock = pickle.dumps(stock)
             conn.insert_one({'stock_bin': serialized_stock}) 
