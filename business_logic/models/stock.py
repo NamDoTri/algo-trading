@@ -22,3 +22,6 @@ class Stock:
 
     def total_worth(self):
         return self.buy_price * self.num_shares
+
+    def __str__(self) -> str:
+        return ', '.join([self.symbol, self.buy_price, self.num_shares])

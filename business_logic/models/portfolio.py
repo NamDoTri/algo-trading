@@ -1,11 +1,17 @@
-from multiprocessing import Value
+from MySQLdb.cursors import Cursor
 import pickle
 import re
-
-from .stock import Stock
 from multipledispatch import dispatch
+from .stock import Stock
+from database.data_manager.data_access import connect_as_user
+from database.data_manager.init_queries import metadata_table_name
+from database.mongo_client import get_mongo_db_conn
 
 class Portfolio:
+    @property
+    def lst_symbols(self):
+        return [stock.symbol for stock in self.lst_stocks if len(self.lst_stocks) > 0]
+
     def __init__(self):
         self.balance = 4000
         self.current_strategy = ''
@@ -46,13 +52,14 @@ class Portfolio:
         else:
             raise TypeError('Parameter stock must be of type Stock.')
 
-    def sell_stock(self, symbol):
+    def sell_stock(self, symbol) -> Stock:
         if isinstance(symbol, str):
             try:
                 stock = next(s for s in self.lst_stocks if s.symbol == symbol)
                 balance_gain = stock.total_worth()
                 self.balance += balance_gain
                 self.lst_stocks.remove(stock)
+                return stock
             except StopIteration:
                 raise ValueError(f"Portfolio doesn't contain stock with symbol {symbol}.")
         else:
@@ -61,7 +68,23 @@ class Portfolio:
     def is_using_ML(self) -> bool:
         pattern = re.compile('^ML_')
         res = pattern.match(self.current_strategy)
-        return res is not None
+        return res is not None        
+
+    def save_portfolio(self, db_cursor = None):
+        cursor = db_cursor if db_cursor is Cursor else connect_as_user().cursor()
+        query = f"UPDATE {metadata_table_name} SET val = %s WHERE field = %s"
+        lst_params = [] 
+        lst_params.append(('balance', str(self.balance)))
+        lst_params.append(('current_strategy', self.current_strategy))
+        
+        cursor.executemany(query, lst_params)
+        self.save_stocks()
+
+    def save_stocks(self):
+        conn = get_mongo_db_conn('owned_stocks')
+        for stock in self.lst_stocks:
+            serialized_stock = pickle.dumps(stock)
+            conn.insert_one({'stock_bin': serialized_stock}) 
 
     def __contains__(self, stock):
         if isinstance(stock, Stock):
