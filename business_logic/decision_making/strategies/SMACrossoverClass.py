@@ -12,7 +12,7 @@ class SMACrossover:
         self.sma1 = []
         self.sma2 = []
 
-    def should_buy(self, data) -> bool:
+    def should_buy(self, data) -> Action:
         '''
             data: OHLC DataFrame
         '''

@@ -34,7 +34,7 @@ def insert_default_values(cursor):
     query = insert_metadata_query('%s', '%s')
     init_values = (
         ('balance', 4000),
-        ('current_strategy', 'MACrossover')
+        ('current_strategy', 'SMACrossover')
     )
     cursor.executemany(query, init_values)
 
