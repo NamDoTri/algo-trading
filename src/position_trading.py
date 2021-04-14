@@ -63,6 +63,8 @@ def main():
 
         portfolio.save_portfolio()
 
+        # TESTING
+        return portfolio.lst_stocks
     else:
         print('No stocks in the current portfolio.')
 
