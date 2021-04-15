@@ -31,6 +31,9 @@ class SMACrossover:
                 else:
                     return Action.HOLD
 
+    def __repr__(self):
+        return str(self.__class__) + ' with n1 = ' + str(self.n1) + ' and n2 = ' + str(self.n2)
+
 
 def SMA(values, n):
     return pd.Series(values).rolling(n).mean()
