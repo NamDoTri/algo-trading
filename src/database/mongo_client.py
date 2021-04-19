@@ -16,19 +16,30 @@ def get_mongo_db_conn(collection_name = '') -> pymongo.database.Database:
     except pymongo.errors.ConnectionFailure:
         raise ConnectionError('Cannot connect to MongoDB server.')
 
+def get_remote_client(collection_name = ''):
+    connection_string, database = get_db_configs(mode='remote')
+    client = pymongo.MongoClient(connection_string)
+    db = client[database]
+    conn = db[collection_name]
+    return conn
 
-def get_db_configs():
+def get_db_configs(mode='local'):
     print(f'Accessing config file from {os.getcwd()}')
     path = os.path.join(os.path.dirname(__file__), '../db_config.ini')
     config = ConfigParser()
     config.read(path)
 
     if len(config.sections()) > 0:
-        db_name = config['MONGODB']['DATABASE_NAME']
-        db_host = config['MONGODB']['DATABASE_HOST']
-        db_port = int(config['MONGODB']['DATABASE_PORT'])
-        collection_name = config['MONGODB']['COLLECTION_NAME']
-        return (db_name, db_host, db_port, collection_name)
+        if mode == 'local':
+            db_name = config['MONGODB']['DATABASE_NAME']
+            db_host = config['MONGODB']['DATABASE_HOST']
+            db_port = int(config['MONGODB']['DATABASE_PORT'])
+            collection_name = config['MONGODB']['COLLECTION_NAME']
+            return (db_name, db_host, db_port, collection_name)
+        elif mode == 'remote':
+            connection_string = config['MONGODB']['CONNECTION_STRING']
+            db_name = config['MONGODB']['DATABASE_NAME']
+            return (connection_string, db_name)
 
 def reset_db(db_connection = None):
     conn = db_connection if db_connection is pymongo.database.Database else get_mongo_db_conn()
