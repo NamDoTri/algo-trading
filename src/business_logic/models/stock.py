@@ -32,4 +32,4 @@ class Stock:
             self.num_shares = math.floor(cash/price_per_share)
 
     def __str__(self) -> str:
-        return ', '.join([self.symbol, self.buy_price, self.num_shares])
+        return ', '.join([self.symbol, str(self.buy_price), str(self.num_shares)])

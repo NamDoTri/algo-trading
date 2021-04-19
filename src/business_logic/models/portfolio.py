@@ -52,7 +52,7 @@ class Portfolio:
         else:
             raise TypeError('Parameter stock must be of type Stock.')
 
-    def sell_stock(self, symbol) -> Stock:
+    def drop_stock(self, symbol) -> Stock:
         if isinstance(symbol, str):
             try:
                 stock = next(s for s in self.lst_stocks if s.symbol == symbol)
@@ -89,6 +89,9 @@ class Portfolio:
         for stock in self.lst_stocks:
             serialized_stock = pickle.dumps(stock)
             conn.insert_one({'stock_bin': serialized_stock}) 
+
+    def get_stock(self, symbol) -> Stock:
+        return next((stock for stock in self.lst_stocks if stock.symbol == symbol), None)
 
     def __contains__(self, stock):
         if isinstance(stock, Stock):

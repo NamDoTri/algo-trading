@@ -41,3 +41,5 @@ def SMA(values, n):
 def crossover(sma1, sma2):
     if (sma1[-2] < sma2[-2] and sma1[-1] > sma2[-1]):
         return True
+    else:
+        return False
