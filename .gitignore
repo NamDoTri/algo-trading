@@ -4,7 +4,11 @@ Include/
 Lib/
 Scripts/
 
+# dependency directory
+src/node_modules/*
+
 # config files
+.env
 *.cfg
 *.ini
 
