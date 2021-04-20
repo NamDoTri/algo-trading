@@ -7,24 +7,29 @@ from business_logic.get_data import fetch_portfolio
 from business_logic.decision_making.strategies.SMACrossoverClass import SMACrossover
 from business_logic.models.stock import Stock
 from database.data_manager.data_access import connect_as_user
+from database.data_manager.data_access import connect_as_aws_root
+from database.mongo_client import get_remote_client
 from helpers.printing import timestamp_log
 from enums import Action, TAStrategy
 
-def main():
-    cursor = connect_as_user().cursor(DictCursor)
+def main(event, context):
+    # cursor = connect_as_user().cursor(DictCursor) # for local database when testing
+    cursor = connect_as_aws_root().cursor(DictCursor)
+    models_conn = get_remote_client('models')
+
     portfolio = fetch_portfolio(db_cursor=cursor)
     decision_maker = object()
     today_date = datetime.now().strftime('%d-%m-%Y')
 
     if portfolio.is_using_ML():
         model_name = portfolio.current_strategy
-        decision_maker = load_saved_model_from_mongo(model_name)
+        decision_maker = load_saved_model_from_mongo(model_name, models_conn)
     else:
         tech_indicator = portfolio.current_strategy
         if tech_indicator == TAStrategy.SMACrossover.name:
             decision_maker = SMACrossover()
 
-    # TESTING
+    # UNCOMMENT IF TESTING
     if len(portfolio.lst_stocks) <= 0:
         portfolio.add_stock(Stock('AAPL', 0, 0, None))
         portfolio.add_stock(Stock('MSFT', 0, 0, None))
