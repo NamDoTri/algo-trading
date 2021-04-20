@@ -1,0 +1,21 @@
+service: algotrading
+
+frameworkVersion: '2'
+
+provider:
+  name: aws
+  runtime: python3.7
+  lambdaHashingVersion: 20201221
+
+functions:
+  db_setup:
+    handler: set_up.main
+  position_trading:
+    handler: position_trading.main
+
+plugins:
+  - serverless-python-requirements
+
+custom:
+  pythonRequirements:
+    dockerizePip: non-linux

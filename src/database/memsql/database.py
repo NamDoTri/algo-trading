@@ -2,7 +2,6 @@ from configparser import ConfigParser
 from pathlib import Path
 import os
 import subprocess
-import argparse
 
 def start_db():
     setup_env_variables()    
@@ -46,6 +45,25 @@ def get_db_configs(section = 'database'):
             host = user_config['HOST']
             port = user_config['PORT']
             return (username, password, host, port)
+
+        elif section == 'remote_root':
+            root_config = config['SINGLESTORE_ROOT']
+            username = config['AWS_MYSQL']['USERNAME']
+            password = root_config['PASSWORD']
+            host = config['AWS_MYSQL']['HOST']
+            port = root_config['PORT']
+            return (username, password, host, port)     
+
+        elif section == 'remote_user':
+            user_config = config['algotrader2']
+            db_name = user_config['DB_NAME']
+            username = user_config['USERNAME']
+            password = user_config['PASSWORD']
+            host = user_config['HOST']
+            port = user_config['PORT']
+            return (db_name, username, password, host, port)
+       
+
     else:
         file = Path(path)
         if file.is_file():
