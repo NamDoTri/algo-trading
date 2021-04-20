@@ -6,6 +6,7 @@ Scripts/
 
 # dependency directory
 src/node_modules/*
+src/.serverless/*
 
 # config files
 .env

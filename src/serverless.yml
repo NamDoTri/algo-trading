@@ -18,4 +18,5 @@ plugins:
 
 custom:
   pythonRequirements:
+    dockerImage: py3.7-with-mysql-config
     dockerizePip: non-linux
