@@ -68,9 +68,9 @@ def validate_input_df(data) -> bool:
             raise TypeError('Values in column Close must be of type numpy.float')
     return True
 
-def prepare_data_train_model(clf, orig_data, split):
+def prepare_data_train_model(clf, orig_data, split, period = 2, change_threshold = 0.004):
     data = get_OHLC_df(orig_data)
-    data = label_OHLC_df(data, 2, small_change_threshold=0.004)
+    data = label_OHLC_df(data, period, small_change_threshold=change_threshold)
     X_train, X_test, y_train, y_test = split_train_test(data, split)
     clf.fit(X_train, y_train)
     return f1_eval(clf, X_test, y_test)
