@@ -1,4 +1,4 @@
-from database.data_manager.init_queries import create_user_query, grant_all_query, create_database_query, setup_schema_queries, insert_metadata_query
+from database.data_manager.init_queries import create_user_query, grant_all_query, create_database_query, insert_currency_query, setup_schema_queries, insert_metadata_query
 from database.memsql.client import connect_as_root
 from database.memsql.database import get_db_configs
 from MySQLdb.cursors import Cursor
@@ -32,10 +32,15 @@ def create_SU_grant_all(cursor, *, drop_old_user=False):
 
 def insert_default_values(cursor):
     cursor.execute('USE algotrading')
+
+    query = insert_currency_query('USD', 'United State dollar')
+    cursor.execute(query)
+
     query = insert_metadata_query('%s', '%s')
     init_values = (
         ('balance', 4000),
         ('current_strategy', 'SMACrossover')
+        ('currencyID', 1)
     )
     cursor.executemany(query, init_values)
 
