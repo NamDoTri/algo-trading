@@ -1,11 +1,11 @@
-from MySQLdb.cursors import Cursor
+from MySQLdb.cursors import Cursor, BaseCursor
 import pickle
 import re
 from multipledispatch import dispatch
 from .stock import Stock
 from database.data_manager.data_access import connect_as_user
 from database.data_manager.init_queries import metadata_table_name
-from database.mongo_client import get_mongo_db_conn
+from database.mongo_client import get_mongo_db_conn, get_remote_client
 
 class Portfolio:
     @property
@@ -71,7 +71,7 @@ class Portfolio:
         return res is not None        
 
     def save_portfolio(self, db_cursor = None):
-        cursor = db_cursor if db_cursor is Cursor else connect_as_user().cursor()
+        cursor = db_cursor if isinstance(db_cursor, BaseCursor) else connect_as_user().cursor()
         query = f"UPDATE {metadata_table_name} SET val = %s WHERE field = %s"
         lst_params = [] 
         lst_params.append(('balance', str(self.balance)))
@@ -81,7 +81,8 @@ class Portfolio:
         self.save_stocks()
 
     def save_stocks(self, drop_old_entries = True):
-        conn = get_mongo_db_conn('owned_stocks')
+        # conn = get_mongo_db_conn('owned_stocks')
+        conn = get_remote_client('owned_stocks')
 
         if drop_old_entries:
             conn.drop()

@@ -6,6 +6,7 @@ from MySQLdb.cursors import Cursor, DictCursor
 from database.data_manager.init_queries import exchange_table_name, securities_table_name, currency_table_name, city_table_name, country_table_name, data_vendor_table_name, metadata_table_name
 from database.data_manager.data_access import connect_as_user
 from database.mongo_client import get_mongo_db_conn
+from database.mongo_client import get_remote_client
 from business_logic.decision_making.data_prepration import get_OHLC_df, label_OHLC_df
 from .models.portfolio import Portfolio
 
@@ -85,8 +86,8 @@ def get_data_vendor_ids(cursor=None):
     else:
         raise Exception(get_data_vendor_ids.__name__ + '  Cannot connect to the database to verify data vendor.')
 
-def fetch_portfolio(db_cursor = None) -> Portfolio:
-    cursor = db_cursor if db_cursor is DictCursor else connect_as_user().cursor(DictCursor)
+def fetch_portfolio(db_cursor = None, mongo_conn = None) -> Portfolio:
+    cursor = db_cursor if isinstance(db_cursor, DictCursor) else connect_as_user().cursor(DictCursor)
     if cursor:
         query = f'SELECT * FROM {metadata_table_name}'
         cursor.execute(query)
@@ -98,17 +99,18 @@ def fetch_portfolio(db_cursor = None) -> Portfolio:
                 portfolio.balance = float(row['val'])
             elif field == 'current_strategy':
                 portfolio.current_strategy = str(row['val'])
-        portfolio.lst_stocks = fetch_stocks()
+        portfolio.lst_stocks = fetch_stocks(mongo_conn)
         return portfolio
 
 def fetch_stocks(db_conn = None) -> list:
     conn = object()
     stock_collection_name = 'owned_stocks'
-    if db_conn is Collection:
+    if isinstance(db_conn, Collection):
         if db_conn.name == stock_collection_name:
             conn = db_conn
     else:
-        conn = get_mongo_db_conn(stock_collection_name)
+        # conn = get_mongo_db_conn(stock_collection_name)
+        conn = get_remote_client(stock_collection_name)
 
     res = conn.find({})
     return [pickle.loads(doc['stock_bin']) for doc in res]

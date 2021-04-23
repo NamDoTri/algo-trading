@@ -6,15 +6,14 @@ from business_logic.model_crud import load_saved_model_from_mongo
 from business_logic.get_data import fetch_portfolio
 from business_logic.decision_making.strategies.SMACrossoverClass import SMACrossover
 from business_logic.models.stock import Stock
-from database.data_manager.data_access import connect_as_user
-from database.data_manager.data_access import connect_as_aws_root
+from database.data_manager.data_access import connect_as_aws_user
 from database.mongo_client import get_remote_client
 from helpers.printing import timestamp_log
 from enums import Action, TAStrategy
 
 def main(event, context):
     # cursor = connect_as_user().cursor(DictCursor) # for local database when testing
-    cursor = connect_as_aws_root().cursor(DictCursor)
+    cursor = connect_as_aws_user().cursor(DictCursor)
     models_conn = get_remote_client('models')
 
     portfolio = fetch_portfolio(db_cursor=cursor)
@@ -39,6 +38,7 @@ def main(event, context):
     
 
     if len(portfolio.lst_symbols) > 0:
+        message = ''
         # prepare data
         query = ' '.join(portfolio.lst_symbols)
         data = yf.download(query, period='1mo', interval='1d', group_by='tickers')
@@ -58,20 +58,21 @@ def main(event, context):
                 portfolio.add_stock(stock)
                 
             elif decision == Action.SELL:
-                stock = portfolio.sell_stock(symbol)
+                stock = portfolio.drop_stock(symbol)
 
             elif decision == Action.HOLD:
                 continue
             
-            msg = ', '.join([portfolio.current_strategy, decision, str(stock)])
+            msg = ', '.join([portfolio.current_strategy, str(decision), str(stock)])
             timestamp_log(msg)
+            message += msg 
+            message += '\n'
 
-        portfolio.save_portfolio()
+        portfolio.save_portfolio(db_cursor=cursor)
 
-        # TESTING
-        return portfolio.lst_stocks
+        return message
     else:
         print('No stocks in the current portfolio.')
 
 if __name__ == '__main__':
-    main()
+    main(None, None)

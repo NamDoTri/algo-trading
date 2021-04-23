@@ -1,4 +1,3 @@
-from typing import Collection
 import pymongo
 import os 
 from configparser import ConfigParser
