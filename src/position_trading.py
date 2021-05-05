@@ -1,7 +1,11 @@
+try:
+    import unzip_requirements
+except ImportError as e:
+    print(e)
+
 import math
 from datetime import datetime
 import yfinance as yf
-from MySQLdb.cursors import DictCursor
 from business_logic.model_crud import load_saved_model_from_mongo
 from business_logic.get_data import fetch_portfolio
 from business_logic.decision_making.strategies.SMACrossoverClass import SMACrossover
@@ -11,11 +15,14 @@ from database.mongo_client import get_remote_client
 from helpers.printing import timestamp_log
 from enums import Action, TAStrategy
 
+conn = connect_as_aws_user()
+conn.autocommit = True
+cursor = conn.cursor(dictionary=True)
+
+models_conn = get_remote_client('models')
+
 def main(event, context):
     # cursor = connect_as_user().cursor(DictCursor) # for local database when testing
-    cursor = connect_as_aws_user().cursor(DictCursor)
-    models_conn = get_remote_client('models')
-
     portfolio = fetch_portfolio(db_cursor=cursor)
     decision_maker = object()
     today_date = datetime.now().strftime('%d-%m-%Y')
@@ -29,12 +36,12 @@ def main(event, context):
             decision_maker = SMACrossover()
 
     # UNCOMMENT IF TESTING
-    if len(portfolio.lst_stocks) <= 0:
-        portfolio.add_stock(Stock('AAPL', 0, 0, None))
-        portfolio.add_stock(Stock('MSFT', 0, 0, None))
-        portfolio.add_stock(Stock('AMZN', 0, 0, None))
-        portfolio.add_stock(Stock('FB', 0, 0, None))
-        portfolio.add_stock(Stock('GOOGL', 0, 0, None))
+    # if len(portfolio.lst_stocks) <= 0:
+    #     portfolio.add_stock(Stock('AAPL', 0, 0, None))
+    #     portfolio.add_stock(Stock('MSFT', 0, 0, None))
+    #     portfolio.add_stock(Stock('AMZN', 0, 0, None))
+    #     portfolio.add_stock(Stock('FB', 0, 0, None))
+    #     portfolio.add_stock(Stock('GOOGL', 0, 0, None))
     
 
     if len(portfolio.lst_symbols) > 0:

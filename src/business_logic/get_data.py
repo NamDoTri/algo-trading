@@ -1,8 +1,8 @@
 import pickle
+from mysql.connector.cursor import CursorBase
 import yfinance as yf
 from pymongo.collection import Collection
 from pandas import DataFrame
-from MySQLdb.cursors import Cursor, DictCursor
 from database.data_manager.init_queries import exchange_table_name, securities_table_name, currency_table_name, city_table_name, country_table_name, data_vendor_table_name, metadata_table_name
 from database.data_manager.data_access import connect_as_user
 from database.mongo_client import get_mongo_db_conn
@@ -12,7 +12,7 @@ from .models.portfolio import Portfolio
 
 # REGION FROM DATABASE
 def get_country_ids(cursor=None):
-    csr = cursor if cursor is Cursor else connect_as_user().cursor()
+    csr = cursor if cursor is CursorBase else connect_as_user().cursor()
     if csr:
         csr.execute(f'SELECT ID FROM {country_table_name}')
         rows = csr.fetchall()
@@ -22,7 +22,7 @@ def get_country_ids(cursor=None):
         raise Exception(get_country_ids.__name__ + '  Cannot connect to the database to verify country name.') 
 
 def get_city_ids(cursor=None):
-    csr = cursor if cursor is Cursor else connect_as_user().cursor()
+    csr = cursor if cursor is CursorBase else connect_as_user().cursor()
     if csr:
         csr.execute(f'SELECT ID FROM {city_table_name}')
         rows = csr.fetchall()
@@ -33,7 +33,7 @@ def get_city_ids(cursor=None):
         raise Exception(get_city_ids.__name__ + '  Cannot connect to the database to verify city name.') 
 
 def get_exchange_ids(condition='', *, cursor = None) -> list:
-    csr = cursor if cursor is Cursor else connect_as_user().cursor()
+    csr = cursor if cursor is CursorBase else connect_as_user().cursor()
     if csr:
         query = f'SELECT ID FROM {exchange_table_name} ' + condition
         csr.execute(query)
@@ -44,7 +44,7 @@ def get_exchange_ids(condition='', *, cursor = None) -> list:
         raise Exception(get_exchange_ids.__name__ + '  Cannot connect to the database to verify exchange.')
 
 def get_security_ids(condition = '', *, cursor=None):
-    csr = cursor if cursor is Cursor else connect_as_user().cursor()
+    csr = cursor if cursor is CursorBase else connect_as_user().cursor()
     if csr:
         query = f'SELECT ID FROM {securities_table_name} ' + condition
         csr.execute(query)
@@ -55,7 +55,7 @@ def get_security_ids(condition = '', *, cursor=None):
         raise Exception(get_security_ids.__name__ + '  Cannot connect to the database to verify security.')
 
 def get_security_symbols(condition = '', *,cursor= None) -> list:
-    csr = cursor if cursor is Cursor else connect_as_user().cursor()
+    csr = cursor if cursor is CursorBase else connect_as_user().cursor()
     if csr:
         query = f'SELECT abbrev FROM {securities_table_name} ' + condition
         csr.execute(query)
@@ -66,7 +66,7 @@ def get_security_symbols(condition = '', *,cursor= None) -> list:
         raise Exception(get_security_symbols.__name__ + '  Cannot connect to the database to get security data.')
 
 def get_currency_ids(condition='', *, cursor=None):
-    csr = cursor if cursor is Cursor else connect_as_user().cursor()
+    csr = cursor if cursor is CursorBase else connect_as_user().cursor()
     if csr:
         query = f'SELECT ID FROM {currency_table_name} ' + condition
         csr.execute(query)
@@ -77,7 +77,7 @@ def get_currency_ids(condition='', *, cursor=None):
         raise Exception(get_currency_ids.__name__ + '  Cannot connect to the database to verify currency.')
 
 def get_data_vendor_ids(cursor=None):
-    csr = cursor if cursor is Cursor else connect_as_user().cursor()
+    csr = cursor if cursor is CursorBase else connect_as_user().cursor()
     if csr:
         csr.execute(f"SELECT ID FROM {data_vendor_table_name}")
         rows = csr.fetchall()
@@ -87,13 +87,12 @@ def get_data_vendor_ids(cursor=None):
         raise Exception(get_data_vendor_ids.__name__ + '  Cannot connect to the database to verify data vendor.')
 
 def fetch_portfolio(db_cursor = None, mongo_conn = None) -> Portfolio:
-    cursor = db_cursor if isinstance(db_cursor, DictCursor) else connect_as_user().cursor(DictCursor)
+    cursor = db_cursor if isinstance(db_cursor, CursorBase) else connect_as_user().cursor(dictionary=True)
     if cursor:
         query = f'SELECT * FROM {metadata_table_name}'
         cursor.execute(query)
-        res = cursor.fetchall()
         portfolio = Portfolio()
-        for row in res:
+        for row in cursor:
             field = row['field']
             if field == 'balance':
                 portfolio.balance = float(row['val'])

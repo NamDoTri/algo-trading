@@ -1,7 +1,7 @@
-from MySQLdb.cursors import Cursor, BaseCursor
 import pickle
 import re
 from multipledispatch import dispatch
+from mysql.connector.cursor import CursorBase
 from .stock import Stock
 from database.data_manager.data_access import connect_as_user
 from database.data_manager.init_queries import metadata_table_name
@@ -71,7 +71,7 @@ class Portfolio:
         return res is not None        
 
     def save_portfolio(self, db_cursor = None):
-        cursor = db_cursor if isinstance(db_cursor, BaseCursor) else connect_as_user().cursor()
+        cursor = db_cursor if isinstance(db_cursor, CursorBase) else connect_as_user().cursor()
         query = f"UPDATE {metadata_table_name} SET val = %s WHERE field = %s"
         lst_params = [] 
         lst_params.append(('balance', str(self.balance)))
