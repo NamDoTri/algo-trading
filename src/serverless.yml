@@ -1,0 +1,27 @@
+service: algotrading
+
+provider:
+  name: aws
+  runtime: python3.7
+  region: eu-central-1
+  lambdaHashingVersion: 20201221
+
+functions:
+  db_setup:
+    handler: set_up.main
+    timeout: 900
+  position_trading:
+    handler: position_trading.main
+    timeout: 900
+    events:
+      - schedule: 
+          rate: cron(0 19 ? * MON-FRI *)
+
+plugins:
+  - serverless-python-requirements
+
+custom:
+  pythonRequirements:
+    dockerizePip: non-linux
+    zip: true
+    slim: true

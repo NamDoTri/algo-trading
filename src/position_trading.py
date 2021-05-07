@@ -23,21 +23,26 @@ models_conn = get_remote_client('models')
 
 def main(event, context):
     # cursor = connect_as_user().cursor(DictCursor) # for local database when testing
+    print('Loading portfolio ...')
     portfolio = fetch_portfolio(db_cursor=cursor)
+    print('Portfolio loaded. \n')
     decision_maker = object()
     today_date = datetime.now().strftime('%d-%m-%Y')
 
     if portfolio.is_using_ML():
+        print('\nLoading ML models...')
         model_name = portfolio.current_strategy
         decision_maker = load_saved_model_from_mongo(model_name, models_conn)
+        print('ML models loaded.')
     else:
+        print('\nLoading TA class...')
         tech_indicator = portfolio.current_strategy
         if tech_indicator == TAStrategy.SMACrossover.name:
             decision_maker = SMACrossover()
-
+        print('TA class loaded.')
     # UNCOMMENT IF TESTING
-    # if len(portfolio.lst_stocks) <= 0:
-    #     portfolio.add_stock(Stock('AAPL', 0, 0, None))
+    if len(portfolio.lst_stocks) <= 0:
+        portfolio.add_stock(Stock('AAPL', 0, 0, None))
     #     portfolio.add_stock(Stock('MSFT', 0, 0, None))
     #     portfolio.add_stock(Stock('AMZN', 0, 0, None))
     #     portfolio.add_stock(Stock('FB', 0, 0, None))
@@ -46,12 +51,17 @@ def main(event, context):
 
     if len(portfolio.lst_symbols) > 0:
         message = ''
+
         # prepare data
+        print('\nLoading market data from Yahoo Finance...')
         query = ' '.join(portfolio.lst_symbols)
         data = yf.download(query, period='1mo', interval='1d', group_by='tickers')
+        print('Market data loaded.')
+
         lst_columns = ('Open', 'High', 'Low', 'Close')
 
         # loop through ticker list
+        print('\nEvaluating price and making decisions: ')
         for symbol in portfolio.lst_symbols:
             ticker_data = data.loc[:, (symbol, lst_columns)]
             ticker_data.columns = ticker_data.columns.get_level_values(1)
@@ -75,7 +85,9 @@ def main(event, context):
             message += msg 
             message += '\n'
 
+        print('\nSaving portfolio...')
         portfolio.save_portfolio(db_cursor=cursor)
+        print('Portfolio saved to database.')
 
         return message
     else:

@@ -11,12 +11,12 @@ from mysql.connector.cursor import CursorBase
 
 #region SETUP
 def setup_db(drop_old_info=False, db_cursor = None):
-    cursor = db_cursor if isinstance(db_cursor, CursorBase) else connect_as_root().cursor()
+    cursor = db_cursor # if isinstance(db_cursor, CursorBase) else connect_as_root().cursor()
     create_db(cursor, drop_old_db=drop_old_info)
     create_SU_grant_all(cursor, drop_old_user=drop_old_info)
 
 def setup_schema(cursor = None):
-    csr = cursor if isinstance(cursor, CursorBase) else connect_as_user().cursor()
+    csr = cursor # if isinstance(cursor, CursorBase) else connect_as_user().cursor()
     [csr.execute(query()) for query in setup_schema_queries]
     insert_default_values(csr)
 
@@ -27,13 +27,13 @@ def create_db(cursor, *, drop_old_db=False):
 
 def create_SU_grant_all(cursor, *, drop_old_user=False):
     # username, password, host, port = get_db_configs('algotrader1') # only for local testing
-    _, username, password, host, port = get_db_configs('remote_user')
+    _, username, password, __, port = get_db_configs('remote_user')
 
     if drop_old_user:
-        cursor.execute("DROP USER IF EXISTS '{}'@'{}'".format(username, host))
+        cursor.execute("DROP USER IF EXISTS '{}'@'{}'".format(username, '%'))
 
-    cursor.execute(create_user_query(host, username, password))
-    cursor.execute(grant_all_query(username, host))
+    cursor.execute(create_user_query('%', username, password))
+    cursor.execute(grant_all_query(username, '%'))
 
 def insert_default_values(cursor):
     cursor.execute('USE algotrading')
@@ -63,7 +63,8 @@ def connect_as_aws_root():
                             passwd=password, port=int(port))
 
 def connect_as_aws_user():
-    db_name, username, password, db_host, port = get_db_configs(section='remote_user')
+    db_name, username, password, _, port = get_db_configs(section='remote_user')
+    print(username, password)
     _, __, db_host, ___ = get_db_configs(section='remote_root')
     return mysql.connector.connect(db=db_name, host=db_host, user=username,
                                passwd=password, port=int(port))

@@ -71,7 +71,7 @@ class Portfolio:
         return res is not None        
 
     def save_portfolio(self, db_cursor = None):
-        cursor = db_cursor if isinstance(db_cursor, CursorBase) else connect_as_user().cursor()
+        cursor = db_cursor # if isinstance(db_cursor, CursorBase) else connect_as_user().cursor()
         query = f"UPDATE {metadata_table_name} SET val = %s WHERE field = %s"
         lst_params = [] 
         lst_params.append(('balance', str(self.balance)))

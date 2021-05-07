@@ -87,7 +87,7 @@ def get_data_vendor_ids(cursor=None):
         raise Exception(get_data_vendor_ids.__name__ + '  Cannot connect to the database to verify data vendor.')
 
 def fetch_portfolio(db_cursor = None, mongo_conn = None) -> Portfolio:
-    cursor = db_cursor if isinstance(db_cursor, CursorBase) else connect_as_user().cursor(dictionary=True)
+    cursor = db_cursor # if isinstance(db_cursor, CursorBase) else connect_as_user().cursor(dictionary=True)
     if cursor:
         query = f'SELECT * FROM {metadata_table_name}'
         cursor.execute(query)
